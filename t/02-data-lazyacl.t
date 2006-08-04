@@ -28,8 +28,28 @@ sub basic {
     ok(  $acl->has_privilege( 'view' ) );
     
     throws_ok( sub { $acl->set_all_access_keys([qw/admin/]) } , qr{You can not use reserved word 'admin' as access key.} );
+
+    my $keys = $acl->retrieve_access_keys_for( $token );
+
+    ok( &any( $keys , 'edit'   ) );
+    ok( &any( $keys , 'insert' ) );
+    ok(!&any( $keys , 'view'   ) );
+    ok(!&any( $keys , 'admin'  ) );
+    
+    my $admin_key = $acl->retrieve_access_keys_for( $admin_token );
+    
+    ok( &any( $admin_key , 'admin' ) );
 }
 
+sub any {
+    my $keys = shift;
+    my $item = shift;
+    foreach my $key ( @{ $keys } ) {
+        return 1 if $item eq $key;
+    }
+
+    return 0;
+}
 
 sub a_lot {
     my $acl = Data::LazyACL->new();
@@ -46,3 +66,4 @@ sub a_lot {
     ok(  !$acl->has_privilege( 'access_8941' ) );
     
 }
+

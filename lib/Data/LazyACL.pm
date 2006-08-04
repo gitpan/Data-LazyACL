@@ -6,7 +6,7 @@ use Carp;
 use Readonly;
 use vars qw/$VERSION/;
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 Readonly my $ADMIN_NUMBER => -1;
 
@@ -77,6 +77,28 @@ sub generate_token {
 
 }
 
+sub retrieve_access_keys_for {
+    my $s           = shift;
+    my $token       = shift;
+    my @access_keys = ();
+
+    return ['admin'] if $token eq $ADMIN_NUMBER;
+
+    foreach my $key ( keys %{ $s->{access_key} } ) {
+        next if $key eq 'admin';
+        my $mb    = Math::BigInt->new('2');
+        my $digit = $s->{access_key}{ $key };
+
+        $mb->bpow( $digit - 1 );    
+        
+        if( $mb->band( $token ) ) {
+            push @access_keys , $key ;
+        }
+
+    }
+
+    return \@access_keys;
+}
 
 1;
 
@@ -109,6 +131,9 @@ to check having access or not.
  if ( $acl->has_privilege( 'edit' ) ) {
     print "Never Dispaly\n";
  }
+ 
+ my $access_keys_ref 
+    = $acl->retrieve_access_keys_for( $token );
 
 =head1 METHODS
 
@@ -138,7 +163,11 @@ If you want to have all access then use reserve keyword 'admin' .
 
 check having privilege or not for the access_key.
 
-=head2 Token can be big number
+=head2 $keys_ref = retrieve_access_keys_for( $token )
+
+Get access keys array ref for a token.
+
+=head1 Token can be big number
 
 Token can be big number when you add a lot of access keys, so I suggest
 you treat Token as String not Integer when you want to store it into database.

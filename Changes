@@ -1,2 +1,5 @@
+0.02 2006/08/05
+    - add retrieve_access_keys_for method
+
 0.01 2006/07/05
     - created.
