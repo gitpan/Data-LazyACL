@@ -10,7 +10,9 @@ a_lot();
 sub basic {
     my $acl = Data::LazyACL->new();
     $acl->set_all_access_keys( [qw/edit insert view/] );
-     
+   
+    is_deeply( $acl->get_all_access_keys() , [qw/edit insert view/] );
+    
     my $token = $acl->generate_token([qw/edit insert/]);
     
     $acl->set_token( $token );

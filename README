@@ -1,1 +1,10 @@
-See POD
+perl Makefile.PL
+make
+make test
+make install
+
+or
+
+perl -MCPAN -e 'install Data::LazyACL'
+
+

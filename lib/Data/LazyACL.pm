@@ -6,7 +6,7 @@ use Carp;
 use Readonly;
 use vars qw/$VERSION/;
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 Readonly my $ADMIN_NUMBER => -1;
 
@@ -17,9 +17,16 @@ sub new {
     bless $s , $class;
 }
 
+sub get_all_access_keys {
+    my $s = shift;
+    return $s->{all_access_keys};
+}
+
 sub set_all_access_keys {
     my $s           = shift;
     my $access_keys = shift;
+
+    $s->{all_access_keys} = $access_keys ;
 
     my $digit = 1;
     for  my $access_key ( @{ $access_keys }  ) {
@@ -119,6 +126,8 @@ to check having access or not.
  my $acl = Data::LazyACL->new();
  $acl->set_all_access_keys( [qw/edit insert view/]);
 
+ my ( $edit , insert , view ) = $s->get_all_access_keys();
+
  # maybe you want to store this token into user record.
  my $token = $acl->generate_token([qw/view insert/]);
 
@@ -149,6 +158,11 @@ generate token , otherwise you will messup permissins. When you want to add new 
 =head2 $token = generate_token( \@user_access_keys )
 
 Generate token. You may want to save this token for per user.
+
+=head2 \@access_keys = get_all_access_keys()
+
+Get access keys which you set with set_all_access_keys() .. means not include
+'admin'.
 
 =head2 set_token( $token )
 
