@@ -6,7 +6,7 @@ use Carp;
 use Readonly;
 use vars qw/$VERSION/;
 
-$VERSION = '0.03';
+$VERSION = '0.04';
 
 Readonly my $ADMIN_NUMBER => -1;
 
@@ -48,6 +48,9 @@ sub has_privilege {
     return 0 unless defined $s->{token};
     # admin
     return 1 if $s->{token} eq $ADMIN_NUMBER ;
+
+    # required admin
+    return 0 if $access_key eq 'admin';
 
     my $access_digit =  $s->{access_key}{ $access_key } ;
     
@@ -107,6 +110,27 @@ sub retrieve_access_keys_for {
     return \@access_keys;
 }
 
+sub retrieve_access_keys_in_hash_for {
+    my $s           = shift;
+    my $token       = shift;
+    my $access_keys = {};
+
+    return {admin => 1} if $token eq $ADMIN_NUMBER;
+
+    foreach my $key ( keys %{ $s->{access_key} } ) {
+        next if $key eq 'admin';
+        my $mb    = Math::BigInt->new('2');
+        my $digit = $s->{access_key}{ $key };
+
+        $mb->bpow( $digit - 1 );    
+        
+        if( $mb->band( $token ) ) {
+            $access_keys->{ $key } = 1;
+        }
+
+    }
+    return $access_keys;
+}
 1;
 
 =head1 NAME
@@ -143,6 +167,9 @@ to check having access or not.
  
  my $access_keys_ref 
     = $acl->retrieve_access_keys_for( $token );
+ 
+ my $access_keys_hash_ref
+    = $acl->retrieve_access_keys_in_hash_for( $token );
 
 =head1 METHODS
 
@@ -180,6 +207,10 @@ check having privilege or not for the access_key.
 =head2 $keys_ref = retrieve_access_keys_for( $token )
 
 Get access keys array ref for a token.
+
+=head2 $keys_hash_ref = retrieve_access_keys_in_hash_for( $token )
+
+Get access keys as hash key. value is 1.
 
 =head1 Token can be big number
 
