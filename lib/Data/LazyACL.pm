@@ -3,12 +3,11 @@ package Data::LazyACL;
 use strict;
 use Math::BigInt;
 use Carp;
-use Readonly;
 use vars qw/$VERSION/;
 
-$VERSION = '0.04';
+$VERSION = '0.05';
 
-Readonly my $ADMIN_NUMBER => -1;
+my $ADMIN_NUMBER = -1;
 
 sub new {
     my $class = shift;
